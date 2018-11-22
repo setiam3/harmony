@@ -1,11 +1,16 @@
 <?php
 $this->breadcrumbs=array(
-	'Member'=>array('/member'),
+	'Member'=>array('index'),
+	$model->user_id=>array('view','user_id'=>$model->user_id),
 	'Update',
-);?>
-<h1><?php echo $this->id . '/' . $this->action->id; ?></h1>
+);
 
-<p>
-	You may change the content of this page by modifying
-	the file <tt><?php echo __FILE__; ?></tt>.
-</p>
+?>
+
+<h1>Update Profile <?php //echo $model->user_id; ?></h1>
+
+<?php echo $this->renderPartial('_form', array('model'=>$model)); 
+if(!empty($model->foto)){
+	echo CHtml::image(Controller::imagesUrl().$model->foto,'profile',array('class'=>'col-sm-6'));
+}
+?>

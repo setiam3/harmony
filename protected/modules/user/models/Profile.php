@@ -180,4 +180,6 @@ class Profile extends UActiveRecord
 			return $this->_model;
 		}
 	}
+	
+	
 }

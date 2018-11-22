@@ -29,7 +29,9 @@
 <script type="text/javascript">
 var baseurl = '<?php echo Yii::app()->theme->baseUrl?>/';
 </script>
+<div class="container">
 <?php echo $content;?>
+</div>
 	<!-- Bottom scripts (common) -->
 	<script src="<?php echo Yii::app()->theme->baseUrl?>/assets/js/gsap/TweenMax.min.js"></script>
 	<script src="<?php echo Yii::app()->theme->baseUrl?>/assets/js/jquery-ui/js/jquery-ui-1.10.3.minimal.min.js"></script>

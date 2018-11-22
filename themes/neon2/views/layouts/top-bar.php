@@ -9,7 +9,15 @@
 					<li class="profile-info dropdown"><!-- add class "pull-right" if you want to place this from right -->
 		
 <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-<img src="<?php echo Yii::app()->theme->baseUrl?>/assets/images/thumb-1@2x.png" alt="" class="img-circle" width="44" />
+<img src="<?php 
+if(empty(Member::model()->findByAttributes(array('id'=>Yii::app()->user->id))->foto)){
+	echo Yii::app()->theme->baseUrl.'/assets/images/thumb-1@2x.png';
+}else{
+	echo Yii::app()->baseUrl.'/images/'.Member::model()->findByAttributes(array('id'=>Yii::app()->user->id))->foto;
+}
+?>
+
+" alt="" class="img-circle" width="44" />
 hi, <?php echo Yii::app()->user->name; ?>
 </a>
 
@@ -20,7 +28,7 @@ hi, <?php echo Yii::app()->user->name; ?>
 
                                                     <!-- Profile sub-links -->
                                                     <li>
-                                                            <a href="<?php echo Yii::app()->createUrl('user/admin/update/id/'.Yii::app()->user->id)?>">
+                                                            <a href="<?php echo Yii::app()->createUrl('member/update/id/'.Yii::app()->user->id)?>">
                                                                     <i class="entypo-user"></i>
                                                                     Edit Profile
                                                             </a>

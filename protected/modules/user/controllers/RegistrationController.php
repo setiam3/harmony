@@ -23,11 +23,29 @@ class RegistrationController extends Controller
         /**
 	 * Registration user
 	 */
+    public function actionJsonmember(){
+    	$js=array();
+    	if(empty($_POST['id'])){
+    		if(empty(Member::model()->findAll())){
+	    		$js=array('id'=>'#','text'=>'#');
+	    	}else{
+	    		foreach(Member::model()->findAll('level!="distributor"') as $k=>$row){
+		    		$js[]=array('id'=>$row->kode_member,'text'=>$row->kode_member.'-'.$row->nama.'-'.$row->alamat);
+		    	}
+	    	}
+    	}else{
+    		foreach(Member::model()->findAll('level!="distributor" and kode_member="'.$_POST['id'].'"') as $k=>$row){
+		    		$js[]=array('id'=>$row->kode_member,'text'=>$row->kode_member.'-'.$row->nama.'-'.$row->alamat);
+		    	}
+    	}
+    	echo CJSON::encode($js);
+    }
 	public function actionRegistration() {
+		$this->layout='//layouts/register';
             $model = new RegistrationForm;
             $profile=new Profile;
             $profile->regMode = true;
-            
+
 			// ajax validator
 			if(isset($_POST['ajax']) && $_POST['ajax']==='registration-form')
 			{
@@ -49,19 +67,13 @@ class RegistrationController extends Controller
 						$model->verifyPassword=UserModule::encrypting($model->verifyPassword);
 						$model->superuser=0;
 						$model->status=((Yii::app()->controller->module->activeAfterRegister)?User::STATUS_ACTIVE:User::STATUS_NOACTIVE);
-						
 						if ($model->save()) {
 							$profile->user_id=$model->id;
                             $profile->kode_member= Controller::autoformat();//generate kodemember
                             $profile->sponsor=$profile->kode_upline;//jika ada upline otomatis sponsor
 							$profile->save();
-							//insert into authasignment;
-						$q="insert into AuthAssignment (itemname, userid) values ('user','$model->id')";
-						Yii::app()->db->createCommand($q)->execute();
-						//end insert
-		Controller::upgradelevel($profile->kode_upline);
-		Controller::hitungbonusgetmember($profile->kode_upline,$profile->kode_member);
-		Controller::bonussponsor($profile->sponsor,$profile->kode_member);//end update
+							
+
 							if (Yii::app()->controller->module->sendActivationMail) {
 								$activation_url = $this->createAbsoluteUrl('/user/activation/activation',array("activkey" => $model->activkey, "email" => $model->email));
 								UserModule::sendMail($model->email,UserModule::t("You registered from {site_name}",array('{site_name}'=>Yii::app()->name)),UserModule::t("Please activate you account go to {activation_url}",array('{activation_url}'=>$activation_url)));
@@ -82,7 +94,17 @@ class RegistrationController extends Controller
 								} else {
 									Yii::app()->user->setFlash('registration',UserModule::t("Thank you for your registration. Please check your email."));
 								}
+
+	//insert into authasignment;
+	$q="insert into AuthAssignment (itemname, userid) values ('user','$profile->user_id')";
+	Yii::app()->db->createCommand($q)->execute();
+	//end insert
+	Controller::hitungbonusgetmember($profile->kode_upline,$profile->kode_member);
+	Controller::upgradelevel($profile->kode_upline);
+	Controller::bonussponsor($profile->sponsor,$profile->kode_member);//end update
+
 								$this->refresh();
+
 							}
 						}
 					} else $profile->validate();

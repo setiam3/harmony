@@ -31,6 +31,7 @@ class Controller extends RController
     public static function date_sql_now(){
         return gmdate("Y-m-d H:i:s", time()+60*60*7);
     }
+
     public static function tanggal_indo($tanggal){//tanggal mysql to indo
     if(isset($tanggal) && !empty($tanggal)){
         $split=explode('-', $tanggal);
@@ -136,6 +137,23 @@ class Controller extends RController
         }
         return $randomString;
     }
+    public function jsonmember(){
+        $js=array();
+        if(empty($_POST['id'])){
+            if(empty(Member::model()->findAll())){
+                $js=array('id'=>'#','text'=>'#');
+            }else{
+                foreach(Member::model()->findAll('level!="distributor"') as $k=>$row){
+                    $js[]=array('id'=>$row->kode_member,'text'=>$row->kode_member.'-'.$row->nama.'-'.$row->alamat);
+                }
+            }
+        }else{
+            foreach(Member::model()->findAll('level!="distributor" and kode_member="'.$_POST['id'].'"') as $k=>$row){
+                    $js[]=array('id'=>$row->kode_member,'text'=>$row->kode_member.'-'.$row->nama.'-'.$row->alamat);
+                }
+        }
+        echo CJSON::encode($js);
+    }
     public static function get_member($q){
         $qs = new CDbCriteria(array('select'=>'kode_member','condition' => "kode_member LIKE :match",'params'=> array(':match' => "%$q%")));
         $model=Member::model()->findAll($qs);
@@ -145,12 +163,24 @@ class Controller extends RController
         }
         echo json_encode($arr);
     }
+    public static function id_member(){
+        return Member::model()->findByAttributes(array('id'=>Yii::app()->user->id))->kode_member;
+    }
+    public static function reg_upline($q){
+        $qs = new CDbCriteria(array('select'=>'kode_member','condition' => "level!='distributor' and kode_member LIKE :match",'params'=> array(':match' => "%$q%")));
+        $model=Member::model()->findAll($qs);
+        $arr=array();
+        foreach ($model as $value) {
+            $arr[]=$value->kode_member;
+        }
+        echo json_encode($arr);
+    }
     public static function cari($act,$q){
-        if($act==='upline'){Controller::get_member($q);die;}
+        if($act==='upline'){Controller::reg_upline($q);die;}
         if($act==='member'){Controller::get_member($q);die;}
     }
     public static function autoformat(){
-        $getlastjo=Yii::app()->db->createCommand('select kode_member from profiles order by user_id desc limit 1')->queryScalar();//BY0000001
+        $getlastjo=Yii::app()->db->createCommand('select kode_member from member order by user_id desc limit 1')->queryScalar();//BY0000001
         $format='BY';
         if(!empty($getlastjo)){
             $t=trim($getlastjo,$format);
@@ -176,12 +206,12 @@ class Controller extends RController
         return $format.$lastno;
     }
     public static function get_upline($kodemember){
-        $sql=Yii::app()->db->createCommand('select kode_upline from profiles where kode_member="'.$kodemember.'"')->queryRow();
+        $sql=Yii::app()->db->createCommand('select kode_upline from member where kode_member="'.$kodemember.'"')->queryRow();
         return $sql['kode_upline'];
     }
     public static function get_level($kodemember){
         if($kodemember!=='#'){
-            $mem=Profiles::model()->findByAttributes(array('kode_member'=>$kodemember));
+            $mem=Member::model()->findByAttributes(array('kode_member'=>$kodemember));
         return $mem->level;
         }
     }
@@ -260,40 +290,85 @@ class Controller extends RController
             }
         }
     }
+    public static function get_id($kodemember){
+        return Member::model()->findByAttributes(array('kode_member'=>$kodemember))->id;
+    }
     public static function get_sponsor($kodemember){
-        $mem=Profiles::model()->findByAttributes(array('kode_member'=>$kodemember));
+        $mem=Member::model()->findByAttributes(array('kode_member'=>$kodemember));
         return $mem->sponsor;
     }
     public static function company(){
         return SettingPerusahaan::model()->cache(2000)->findByPk(1)->nama_perusahaan;
     }
     public static function upgradelevel($kodeupline){
-        $upline=Profiles::model()->countByAttributes(array('kode_member'=>$kodeupline));
+        if(!empty($kodeupline) && $kodeupline!=='#'){
+           $upline=Member::model()->countByAttributes(array('kode_member'=>$kodeupline));
         if($upline>0){
-            $jmldownline=Profiles::model()->findByAttributes(array('kode_upline'=>$kodeupline));
-            if(count($jmldownline)==1){
+            $jmldownline=Member::model()->countByAttributes(array('kode_upline'=>$kodeupline));
+            if($jmldownline==1){
                 $jmldownline=0;
             }
-            //print_r($jmldownline);die;
             $sql='select max(member) AS max from setting_level limit 1';
             $cmd=Yii::app()->db->createCommand($sql);
             $max=$cmd->queryRow();
-            $q2=SettingLevel::model()->findByAttributes(array('member'=>count($jmldownline)));
+            $q2=SettingLevel::model()->findByAttributes(array('member'=>$jmldownline));
             if(!empty($q2) && count($jmldownline)<=$max['max']){//max di setting level
-                $sql="update profiles set level='$q2->level' where kode_member='$kodeupline';";
+                $sql="
+                update profiles set level='$q2->level' where kode_member='$kodeupline';
+                update AuthAssignment set itemname='$q2->level' where userid=".Controller::get_id($kodeupline).";";
                 Yii::app()->db->createCommand($sql)->execute();
-                //update rights
-                $q="update AuthAssignment set itemname='$q2->level' where userid=$jmldownline->user_id;";
-                Yii::app()->db->createCommand($q)->execute();
                 return true;
+            }
+        }
+        }
+        
+    }
+    public static function bonussponsor($kodesponsor,$kodemember){
+        if($kodesponsor!='#' || $kodemember!='#'){
+        $q1=SettingBonus::model()->findAllByAttributes(array('jenis_bonus'=>'sponsor'));
+        $jmlsponsor=Member::model()->countByAttributes(array('sponsor'=>$kodesponsor));
+        foreach ($q1 as $value) {
+            $upline_level=Controller::get_level(Controller::get_upline($kodemember));
+            if($jmlsponsor>0 && is_numeric($value->param)){
+                if($jmlsponsor%$value->param==0 && $kodesponsor!='#'){
+                    $model=new Bonus;
+                    $model->kode_member=$kodesponsor;
+                    $model->bonus=$value->bonus;
+                    $model->tanggal=Controller::date_sql_now();
+                    $model->keterangan=$value->keterangan;
+                    $model->dari_member=$kodemember;
+                    $model->idbonus=$value->id;
+                    $model->save();
+                }
+            }
+            elseif(!is_numeric($value->param) && !empty($upline_level) && $upline_level==$value->param){
+                $mb=Bonus::model()->findAllByAttributes(array('dari_member'=>Controller::get_upline($kodemember)));
+                $inarray=array();
+                foreach($mb as $bonus){
+                    $inarray[]=$bonus->idbonus;//simpan dalam array
+                }
+                if(is_array($inarray)){
+                    if(!in_array($value->id, $inarray) && Controller::get_sponsor(Controller::get_upline($kodemember))!='#'){//19 id bonus sponsorship
+                        //echo '<script>console.log("bonus 10k")</script>';
+                        $models=new Bonus;
+                        $models->kode_member=Controller::get_sponsor(Controller::get_upline($kodemember));
+                        $models->bonus=$value->bonus;
+                        $models->tanggal=Controller::date_sql_now();
+                        $models->keterangan=$value->keterangan;
+                        $models->dari_member=Controller::get_upline($kodemember);
+                        $models->idbonus=$value->id;
+                        $models->save();
+                    }}
+                }
             }
         }
     }
     public static function hitungbonusgetmember($kodeupline=NULL,$kodemember){
-        $upline=Profiles::model()->countByAttributes(array('kode_member'=>$kodeupline));
+        if(empty($kodeupline) && $kodeupline=='#'){ return true;}else{
+        $upline=Member::model()->countByAttributes(array('kode_member'=>$kodeupline));
         if($upline>0){
             $q1=SettingBonus::model()->findAllByAttributes(array('jenis_bonus'=>'getmember'));
-            $jmldownline=Profiles::model()->countByAttributes(array('kode_upline'=>$kodeupline));
+            $jmldownline=Member::model()->countByAttributes(array('kode_upline'=>$kodeupline));
             //$jmldownline=5;
             foreach ($q1 as $value) {
                 if($jmldownline>0 && is_numeric($value->param)){
@@ -318,49 +393,7 @@ class Controller extends RController
                     $model->dari_member=$kodemember;
                     $model->idbonus=$value->id;
                     $model->save();
-                }
-            }
-        }
-    }
-    public static function bonussponsor($kodesponsor,$kodemember){
-        if($kodesponsor=='#' || $kodemember=='#'){
-            //continue;
-        }else{
-        $q1=SettingBonus::model()->findAllByAttributes(array('jenis_bonus'=>'sponsor'));
-        $jmlsponsor=Profiles::model()->countByAttributes(array('sponsor'=>$kodesponsor));
-        foreach ($q1 as $value) {
-            $upline_level=Controller::get_level(Controller::get_upline($kodemember));
-            if($jmlsponsor>0 && is_numeric($value->param)){
-                if($jmlsponsor%$value->param==0){
-                    //echo '<script>console.log("bonus 50k")</script>';
-                    $model=new Bonus;
-                    $model->kode_member=$kodesponsor;
-                    $model->bonus=$value->bonus;
-                    $model->tanggal=Controller::date_sql_now();
-                    $model->keterangan=$value->keterangan;
-                    $model->dari_member=$kodemember;
-                    $model->idbonus=$value->id;
-                    $model->save();
-                }
-            }elseif(!is_numeric($value->param) && !empty($upline_level) && $upline_level==$value->param){
-                $mb=Bonus::model()->findAllByAttributes(array('dari_member'=>Controller::get_upline($kodemember)));
-                $inarray=array();
-                foreach($mb as $bonus){
-                    $inarray[]=$bonus->idbonus;//simpan dalam array
-                }
-                if(is_array($inarray)){
-                    if(!in_array($value->id, $inarray)){//19 id bonus sponsorship
-                        //echo '<script>console.log("bonus 10k")</script>';
-                        $models=new Bonus;
-                        $models->kode_member=Controller::get_sponsor(Controller::get_upline($kodemember));
-                        $models->bonus=$value->bonus;
-                        $models->tanggal=Controller::date_sql_now();
-                        $models->keterangan=$value->keterangan;
-                        $models->dari_member=Controller::get_upline($kodemember);
-                        $models->idbonus=$value->id;
-                        $models->save();
-                    }}
-                }
+                }}
             }
         }
     }

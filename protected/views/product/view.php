@@ -16,4 +16,5 @@ $this->breadcrumbs=array(
 		'image',
 	);
 $this->genListView($model,$attributes,$model->id);
+echo CHtml::image(Controller::imagesUrl().$model->image);
 ?>

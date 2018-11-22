@@ -1,8 +1,8 @@
-<div class="form">
+<div class="form col-sm-6">
 
 <?php $form=$this->beginWidget('CActiveForm', array(
-	'id'=>'product-form',
-	'enableAjaxValidation'=>true,
+	'id'=>'member-form',
+	'enableAjaxValidation'=>false,
 	'htmlOptions'=>array('multiple'=>'multiple',
         'enctype' => 'multipart/form-data',
     ),
@@ -12,57 +12,106 @@
 
 	<?php echo $form->errorSummary($model); ?>
 
-
 <div class="row">
 	<div class="form-group">
-		<div class="col-sm-2">
-			<?php echo $form->labelEx($model,'nama_produk'); ?>
+		<div class="col-sm-5">
+			<?php echo $form->labelEx($model,'nama'); ?>
 		</div>
         <div class="col-sm-6">
-				<?php echo $form->textField($model,'nama_produk',array('class'=>'form-control','size'=>45,'maxlength'=>45)); ?>
-			<?php echo $form->error($model,'nama_produk'); ?>
+				<?php echo $form->textField($model,'nama',array('class'=>'form-control')); ?>
+			<?php echo $form->error($model,'nama'); ?>
 		</div>
 	</div>
 </div>
-
-
 <div class="row">
 	<div class="form-group">
-		<div class="col-sm-2">
-			<?php echo $form->labelEx($model,'harga'); ?>
+		<div class="col-sm-5">
+			<?php echo $form->labelEx($model,'alamat'); ?>
 		</div>
         <div class="col-sm-6">
-				<?php echo $form->textField($model,'harga',array('class'=>'form-control')); ?>
-			<?php echo $form->error($model,'harga'); ?>
+				<?php echo $form->textField($model,'alamat',array('class'=>'form-control')); ?>
+			<?php echo $form->error($model,'alamat'); ?>
 		</div>
 	</div>
 </div>
-
-
 <div class="row">
 	<div class="form-group">
-		<div class="col-sm-2">
-			<?php echo $form->labelEx($model,'desc'); ?>
+		<div class="col-sm-5">
+			<?php echo $form->labelEx($model,'hp'); ?>
 		</div>
         <div class="col-sm-6">
-				<?php echo $form->textArea($model,'desc',array('class'=>'form-control','rows'=>6, 'cols'=>50)); ?>
-			<?php echo $form->error($model,'desc'); ?>
+				<?php echo $form->textField($model,'hp',array('class'=>'form-control')); ?>
+			<?php echo $form->error($model,'hp'); ?>
 		</div>
 	</div>
 </div>
-
-
 <div class="row">
 	<div class="form-group">
-		<?php echo $form->labelEx($model,'image',array('class'=>'col-sm-2')); ?>
-            <div class="col-sm-6">
-<input name="foto" accept="image/*" type="file" class="form-control file2 inline btn btn-primary" multiple="multiple" data-label="<i class='glyphicon glyphicon-circle-arrow-up'></i> &nbsp;Browse Files" />
+		<div class="col-sm-5">
+			<?php echo $form->labelEx($model,'tgllahir'); ?>
+		</div>
+        <div class="col-sm-6">
+				<?php echo $form->textField($model,'tgllahir',array('class'=>'form-control datepicker','data-format'=>"yyyy-mm-dd")); ?>
+			<?php echo $form->error($model,'tgllahir'); ?>
+		</div>
+	</div>
+</div>
+<div class="row">
+	<div class="form-group">
+		<div class="col-sm-5">
+			<?php echo $form->labelEx($model,'bank'); ?>
+		</div>
+        <div class="col-sm-6">
+				<?php echo $form->textField($model,'bank',array('class'=>'form-control')); ?>
+			<?php echo $form->error($model,'bank'); ?>
+		</div>
+	</div>
+</div>
+<div class="row">
+	<div class="form-group">
+		<div class="col-sm-5">
+			<?php echo $form->labelEx($model,'kode_member'); ?>
+		</div>
+        <div class="col-sm-6">
+				<?php echo $form->textField($model,'kode_member',array('class'=>'form-control','size'=>45,'maxlength'=>45)); ?>
+			<?php echo $form->error($model,'kode_member'); ?>
+		</div>
+	</div>
+</div>
+<div class="row">
+	<div class="form-group">
+		<div class="col-sm-5">
+			<?php echo $form->labelEx($model,'ektp'); ?>
+		</div>
+        <div class="col-sm-6">
+				<?php echo $form->textField($model,'ektp',array('class'=>'form-control')); ?>
+			<?php echo $form->error($model,'ektp'); ?>
+		</div>
+	</div>
+</div>
+<div class="row">
+	<div class="form-group">
+		<div class="col-sm-5">
+			<?php echo $form->labelEx($model,'rekening'); ?>
+		</div>
+        <div class="col-sm-6">
+				<?php echo $form->textField($model,'rekening',array('class'=>'form-control')); ?>
+			<?php echo $form->error($model,'rekening'); ?>
+		</div>
+	</div>
+</div>
+<div class="row">
+	<div class="form-group">
+		<div class="col-sm-5">
+			<?php echo $form->labelEx($model,'foto'); ?>
+		</div>
+        <div class="col-sm-6">
+<input name="Profile[foto]" accept="image/*" type="file" class="form-control file2 inline btn btn-primary" multiple="multiple" data-label="<i class='glyphicon glyphicon-circle-arrow-up'></i> &nbsp;Browse Files" />
 	</div>
 	</div>
-	</div>
-
+</div>
 	<div class="row buttons">
-		<?php echo CHtml::submitButton($model->isNewRecord ? 'Create' : 'Save'); ?>
+		<?php echo CHtml::submitButton($model->isNewRecord ? 'Create' : 'Save',array('class'=>'btn btn-blue')); ?>
 	</div>
 
 <?php $this->endWidget(); ?>

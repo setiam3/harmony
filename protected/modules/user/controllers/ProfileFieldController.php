@@ -395,6 +395,7 @@ class ProfileFieldController extends Controller
 	{
 		if(Yii::app()->request->isPostRequest)
 		{
+			//print_r($_POST);die;
 			// we only allow deletion via POST request
 			$scheme = get_class(Yii::app()->db->schema);
 			$model = $this->loadModel();

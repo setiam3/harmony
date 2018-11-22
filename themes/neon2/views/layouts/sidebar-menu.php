@@ -177,17 +177,12 @@
 							</a>
 						</li>
 						<li>
-							<a href="<?php echo Yii::app()->createUrl('bonus/pembayaran')?>">
+							<a href="<?php echo Yii::app()->createUrl('wd/index')?>">
 							<i class="entypo-docs"></i>
 								<span class="title">Pembayaran Bonus</span>
 							</a>
 						</li>
-						<li>
-							<a href="<?php echo Yii::app()->createUrl('bonus/cairkan')?>">
-							<i class="entypo-docs"></i>
-								<span class="title">Pencairan Bonus</span>
-							</a>
-						</li>
+						
 					</ul>
 				</li>
 				

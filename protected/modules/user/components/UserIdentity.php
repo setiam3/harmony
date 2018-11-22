@@ -25,6 +25,8 @@ class UserIdentity extends CUserIdentity
 			$user=User::model()->notsafe()->findByAttributes(array('email'=>$this->username));
 		} else {
 			$user=User::model()->notsafe()->findByAttributes(array('username'=>$this->username));
+			if($user===null)
+			$user=Member::model()->findByAttributes(array('kode_member'=>$this->username));
 		}
 		if($user===null)
 			if (strpos($this->username,"@")) {

@@ -1,6 +1,6 @@
 <?php
 
-class BonusController extends Controller
+class WdController extends Controller
 {
 	/**
 	 * @var string the default layout for the views. Defaults to '//layouts/column2', meaning
@@ -14,7 +14,33 @@ class BonusController extends Controller
 	public function filters()
 	{
 		return array(
-			'rights', // perform access control for CRUD operations
+			'accessControl', // perform access control for CRUD operations
+		);
+	}
+
+	/**
+	 * Specifies the access control rules.
+	 * This method is used by the 'accessControl' filter.
+	 * @return array access control rules
+	 */
+	public function accessRules()
+	{
+		return array(
+			array('allow',  // allow all users to perform 'index' and 'view' actions
+				'actions'=>array('index','view'),
+				'users'=>array('*'),
+			),
+			array('allow', // allow authenticated user to perform 'create' and 'update' actions
+				'actions'=>array('create','update'),
+				'users'=>array('@'),
+			),
+			array('allow', // allow admin user to perform 'admin' and 'delete' actions
+				'actions'=>array('admin','delete'),
+				'users'=>array('admin'),
+			),
+			array('deny',  // deny all users
+				'users'=>array('*'),
+			),
 		);
 	}
 
@@ -35,14 +61,14 @@ class BonusController extends Controller
 	 */
 	public function actionCreate()
 	{
-		$model=new Bonus;
+		$model=new Wd;
 
 		// Uncomment the following line if AJAX validation is needed
 		// $this->performAjaxValidation($model);
 
-		if(isset($_POST['Bonus']))
+		if(isset($_POST['Wd']))
 		{
-			$model->attributes=$_POST['Bonus'];
+			$model->attributes=$_POST['Wd'];
 			if($model->save())
 				$this->redirect(array('view','id'=>$model->id));
 		}
@@ -50,45 +76,6 @@ class BonusController extends Controller
 		$this->render('create',array(
 			'model'=>$model,
 		));
-	}
-	public function actionPembayaran(){
-
-	}
-	public function actionCairkan(){
-		//user cairkan dana bonus;
-		$dana=Bonus::model()->findAll(array('condition'=>'kode_member="'.Controller::id_member().'" and bonus > 0 and bonus_diambil="N"'));
-		if(!empty($dana)){
-			//echo $dana->bonus_diambil;
-			$totalcairkan=0;
-			$criteria=new CDbCriteria;
-			$criteria->condition='bonus > 0 and bonus_diambil="N" and kode_member="'.Controller::id_member().'"';
-			foreach ($dana as $value) {
-					Bonus::model()->updateAll(array(
-					'bonus_diambil'=>'Y',
-					'tanggal_ambil'=>Controller::date_sql_now()
-					),$criteria);
-				$totalcairkan+=$value->bonus;
-			}
-			if($totalcairkan>=250000){
-				//insert to wd
-				$wd=new Wd;
-				$wd->kode_member=Controller::id_member();
-				$wd->jumlahwd=$totalcairkan;
-				$wd->jumlahbayar=$totalcairkan;
-				$wd->keterangan='Transfer ke '.Member::model()->findByAttributes(array('kode_member'=>Controller::id_member()))->bank.'-'.Member::model()->findByAttributes(array('kode_member'=>Controller::id_member()))->rekening;
-				$wd->tanggal_wd=Controller::date_sql_now();
-				if($wd->save()){
-					//echo 'silahkan share webreplika anda. silahkan tunggu proses pencairan di hari selasa dan kamis tiap minggunya';
-
-					$share="https://www.facebook.com/sharer/sharer.php?u=www.bestharmony.co.id";
-					$this->redirect($share);
-				}
-			}else{
-				echo 'saldo minimal 250000 untuk dicairkan';
-			}
-		}
-		echo 'bonus anda kosong';
-		//$share="https://www.facebook.com/sharer/sharer.php?u=www.bestharmony.co.id"; $this->redirect($share);
 	}
 
 	/**
@@ -103,9 +90,9 @@ class BonusController extends Controller
 		// Uncomment the following line if AJAX validation is needed
 		// $this->performAjaxValidation($model);
 
-		if(isset($_POST['Bonus']))
+		if(isset($_POST['Wd']))
 		{
-			$model->attributes=$_POST['Bonus'];
+			$model->attributes=$_POST['Wd'];
 			if($model->save())
 				$this->redirect(array('view','id'=>$model->id));
 		}
@@ -137,48 +124,33 @@ class BonusController extends Controller
 	public $columns=array(
 				array(
         		'type'=>'html',
+        		'name'=>'jumlahwd',
+        		'value'=>'CHtml::link($data->jumlahwd,Yii::app()->controller->createUrl("view",array("id"=>$data->id)))',
+        		),
+			array(
+        		'type'=>'html',
         		'name'=>'kode_member',
         		'value'=>'CHtml::link($data->kode_member,Yii::app()->controller->createUrl("view",array("id"=>$data->id)))',
         		),
 			array(
         		'type'=>'html',
-        		'name'=>'tanggal',
-        		'value'=>'CHtml::link($data->tanggal,Yii::app()->controller->createUrl("view",array("id"=>$data->id)))',
+        		'name'=>'tanggal_wd',
+        		'value'=>'CHtml::link($data->tanggal_wd,Yii::app()->controller->createUrl("view",array("id"=>$data->id)))',
         		),
 			array(
         		'type'=>'html',
-        		'name'=>'bonus',
-        		'value'=>'CHtml::link($data->bonus,Yii::app()->controller->createUrl("view",array("id"=>$data->id)))',
+        		'name'=>'jumlahbayar',
+        		'value'=>'CHtml::link($data->jumlahbayar,Yii::app()->controller->createUrl("view",array("id"=>$data->id)))',
         		),
 			array(
         		'type'=>'html',
-        		'name'=>'poin',
-        		'value'=>'CHtml::link($data->poin,Yii::app()->controller->createUrl("view",array("id"=>$data->id)))',
-        		),
-			array(
-        		'type'=>'html',
-        		'name'=>'bonus_diambil',
-        		'value'=>'CHtml::link($data->bonus_diambil,Yii::app()->controller->createUrl("view",array("id"=>$data->id)))',
-        		),
-			array(
-        		'type'=>'html',
-        		'name'=>'tanggal_ambil',
-        		'value'=>'CHtml::link($data->tanggal_ambil,Yii::app()->controller->createUrl("view",array("id"=>$data->id)))',
+        		'name'=>'tanggalbayar',
+        		'value'=>'CHtml::link($data->tanggalbayar,Yii::app()->controller->createUrl("view",array("id"=>$data->id)))',
         		),
 			array(
         		'type'=>'html',
         		'name'=>'keterangan',
         		'value'=>'CHtml::link($data->keterangan,Yii::app()->controller->createUrl("view",array("id"=>$data->id)))',
-        		),
-			array(
-        		'type'=>'html',
-        		'name'=>'dari_member',
-        		'value'=>'CHtml::link($data->dari_member,Yii::app()->controller->createUrl("view",array("id"=>$data->id)))',
-        		),
-			array(
-        		'type'=>'html',
-        		'name'=>'idbonus',
-        		'value'=>'CHtml::link($data->idbonus,Yii::app()->controller->createUrl("view",array("id"=>$data->id)))',
         		),
 	);
 
@@ -187,20 +159,19 @@ class BonusController extends Controller
 	 */
 	public function actionIndex()
 	{
-		//echo 'Transfer ke '.Member::model()->findByAttributes(array('kode_member'=>Controller::id_member()))->bank.'-'.Member::model()->findByAttributes(array('kode_member'=>Controller::id_member()))->rekening;
-		$model=new Bonus('search');
+		$model=new Wd('search');
 		$model->unsetAttributes();
 
 		$widget=$this->createWidget('ext.EDataTables.EDataTables', array(
-		 'id'            => 'Bonus-grid',
+		 'id'            => 'Wd-grid',
 		 'dataProvider'  => $model->search($this->columns),
 		 'ajaxUrl'       => $this->createUrl($this->getAction()->getId()),
 		 'columns'       => $this->columns,
          'bootstrap'=>true,
 		));
-		$total=$model->totalbonus();
+		
 		if (!Yii::app()->getRequest()->getIsAjaxRequest()) {
-		  $this->render('index', array('widget' => $widget,'total'=>$total));
+		  $this->render('index', array('widget' => $widget));
 		  return;
 		} else {
 		  echo json_encode($widget->getFormattedData(intval($_REQUEST['sEcho'])));
@@ -218,16 +189,16 @@ class BonusController extends Controller
             'template'=>'{update}{delete}',
 		    'buttons'=>array(
 		    	'update'=>array(
-		    		'url'=>'Yii::app()->createUrl("Bonus/update/$data->id")',
+		    		'url'=>'Yii::app()->createUrl("Wd/update/$data->id")',
 		    		),
 		        'delete' => array(
-		        	'url'=>'Yii::app()->createUrl("Bonus/delete/$data->id")',
+		        	'url'=>'Yii::app()->createUrl("Wd/delete/$data->id")',
 		            'visible'=>'Yii::app()->user->getIsSuperuser()==1',           
 		        ),
 		    ));
         array_push($this->columns,$ar1);
 
-		$model=new Bonus('search');
+		$model=new Wd('search');
 		$model->unsetAttributes();
 
 		$widget=$this->createWidget('ext.EDataTables.EDataTables', array(
@@ -254,7 +225,7 @@ class BonusController extends Controller
 	 */
 	public function loadModel($id)
 	{
-		$model=Bonus::model()->findByPk($id);
+		$model=Wd::model()->findByPk($id);
 		if($model===null)
 			throw new CHttpException(404,'The requested page does not exist.');
 		return $model;
@@ -266,7 +237,7 @@ class BonusController extends Controller
 	 */
 	protected function performAjaxValidation($model)
 	{
-		if(isset($_POST['ajax']) && $_POST['ajax']==='bonus-form')
+		if(isset($_POST['ajax']) && $_POST['ajax']==='wd-form')
 		{
 			echo CActiveForm::validate($model);
 			Yii::app()->end();

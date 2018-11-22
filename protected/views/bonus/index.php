@@ -6,4 +6,7 @@ $this->breadcrumbs=array(
 ?>
 
 <h1>Bonuses</h1>
-<?php $widget->run();
+<?php 
+echo '<b>TOTAL BONUS = '.number_format($total['bonus'],2,',','.')."\n"; 
+echo 'TOTAL POIN = '.$total['poin'].'</b>';
+$widget->run();

@@ -124,13 +124,14 @@ class ProductController extends Controller
                             Yii::app()->user->setFlash($messageType, $message);
                             $this->redirect(array('create'));
                         }
+                        $foto='Produk'.$model->id.'_'.$i.'_'.'.'.$ext;
                     //image resize
 $image= Yii::app()->image->load($this->imagesPath().'Produk'.$model->id.'_'.$i.'_'.'.'.$ext);
                     $image->resize(640,640);
                     $image->save();
                     $i++;
                     }
-                $model->image='Produk'.$model->id.'_'.$i.'_'.'.'.$ext;
+                $model->image=$foto;
 			if($model->save())
 				$this->redirect(array('view','id'=>$model->id));
 		}}
@@ -169,6 +170,9 @@ $image= Yii::app()->image->load($this->imagesPath().'Produk'.$model->id.'_'.$i.'
                             $this->redirect(array('create'));
                         }
                         $foto='Produk'.$model->id.'_'.$i.'_'.'.'.$ext;
+        $image= Yii::app()->image->load($this->imagesPath().'Produk'.$model->id.'_'.$i.'_'.'.'.$ext);
+                    $image->resize(640,640);
+                    $image->save();
                         
                     $i++;
                     }

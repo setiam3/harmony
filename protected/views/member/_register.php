@@ -1,65 +1,60 @@
-<?php $this->pageTitle=Yii::app()->name . ' - '.UserModule::t("Registration");
-$this->breadcrumbs=array(
-	UserModule::t("Registration"),
-);
+<div class="form">
 
+<?php $form=$this->beginWidget('CActiveForm', array(
+	'id'=>'user-form',
+	'enableAjaxValidation'=>true,
+	'htmlOptions' => array('enctype'=>'multipart/form-data'),
+));
 ?>
 
-<h1><?php echo UserModule::t("Registration"); ?></h1>
-
-<?php if(Yii::app()->user->hasFlash('registration')): ?>
-<div class="success">
-<?php echo Yii::app()->user->getFlash('registration'); ?>
-</div>
-<?php else: ?>
-
-<div class="form">
-<?php $form=$this->beginWidget('UActiveForm', array(
-	'id'=>'registration-form',
-	'enableAjaxValidation'=>true,
-	'disableAjaxValidationAttributes'=>array('RegistrationForm_verifyCode'),
-	'clientOptions'=>array(
-		'validateOnSubmit'=>true,
-	),
-	'htmlOptions' => array('enctype'=>'multipart/form-data'),
-)); ?>
-
 	<p class="note"><?php echo UserModule::t('Fields with <span class="required">*</span> are required.'); ?></p>
-	
+
 	<?php echo $form->errorSummary(array($model,$profile)); ?>
-        <div class="row">
-	<div class="form-group">
-	<?php echo $form->labelEx($model,'username',array('class'=>'col-md-2')); ?>
-	<div class="col-md-3 ">
-	<?php echo $form->textField($model,'username',array('class'=>'form-control')); ?>
-	</div>
-	</div>
-	</div>
-        <div class="row">
-	<div class="form-group">
-	<?php echo $form->labelEx($model,'email',array('class'=>'col-md-2')); ?>
-	<div class="col-md-3 ">
-	<?php echo $form->textField($model,'email',array('class'=>'form-control')); ?>
-	</div>
-	</div>
-	</div>
+
 	<div class="row">
 	<div class="form-group">
-	<?php echo $form->labelEx($model,'password',array('class'=>'col-md-2')); ?>
-	<div class="col-md-3 ">
-	<?php echo $form->passwordField($model,'password',array('class'=>'form-control')); ?>
+		<?php echo $form->labelEx($model,'username',array('class'=>'col-sm-2')); ?>
+		<div class="col-sm-5">
+		<?php echo $form->textField($model,'username',array('size'=>20,'maxlength'=>20,'class'=>'form-control')); ?>
+		</div>
 	</div>
 	</div>
-	</div>
+
 	<div class="row">
 	<div class="form-group">
-	<?php echo $form->labelEx($model,'verifyPassword',array('class'=>'col-md-2')); ?>
-	<div class="col-md-3">
-	<?php echo $form->passwordField($model,'verifyPassword',array('class'=>'form-control')); ?>
+		<?php echo $form->labelEx($model,'password',array('class'=>'col-sm-2')); ?>
+		<div class="col-sm-5">
+		<?php echo $form->passwordField($model,'password',array('size'=>60,'maxlength'=>128,'class'=>'form-control')); ?>
 	</div>
 	</div>
 	</div>
-	
+
+	<div class="row">
+	<div class="form-group">
+		<?php echo $form->labelEx($model,'email',array('class'=>'col-sm-2')); ?>
+		<div class="col-sm-5">
+		<?php echo $form->textField($model,'email',array('size'=>60,'maxlength'=>128,'class'=>'form-control')); ?>
+		</div>
+		</div>
+	</div>
+
+	<div class="row">
+	<div class="form-group">
+		<?php echo $form->labelEx($model,'superuser',array('class'=>'col-sm-2')); ?>
+		<div class="col-sm-5">
+		<?php echo $form->dropDownList($model,'superuser',User::itemAlias('AdminStatus')); ?>
+	</div>
+	</div>
+	</div>
+
+	<div class="row">
+	<div class="form-group">
+		<?php echo $form->labelEx($model,'status',array('class'=>'col-sm-2')); ?>
+		<div class="col-sm-5">
+		<?php echo $form->dropDownList($model,'status',User::itemAlias('UserStatus')); ?>
+	</div>
+	</div>
+	</div>
 	
 <?php 
 		$profileFields=$profile->getFields();
@@ -71,11 +66,6 @@ $this->breadcrumbs=array(
 		<?php echo $form->labelEx($profile,$field->varname,array('class'=>'col-md-2')); ?>
             <div class="col-md-3">
 		<?php 
-if(isset($_GET['reff']) && $_GET['reff']!==''){
-	Yii::app()->session['refferal']=$_GET['reff'];
-}else{
-	Yii::app()->session->destroy();
-}
 
 		if ($widgetEdit = $field->widgetEdit($profile)) {
 			echo $widgetEdit;
@@ -87,9 +77,7 @@ if(isset($_GET['reff']) && $_GET['reff']!==''){
                     echo $form->textField($profile,$field->varname,array('size'=>60,'maxlength'=>(($field->field_size)?$field->field_size:255),'class'=>'form-control datepicker','data-format'=>"yyyy-mm-dd",'value'=> date('Y-m-d')));
                 }else{
                     if($field->varname=='kode_upline' || $field->varname=='sponsor'){
-                        //echo '<select name="dropdown" id="dropdown"></select>';
 echo $form->dropDownList($profile,$field->varname,array());
-                        //echo $form->textField($profile,$field->varname,array('size'=>60,'maxlength'=>(($field->field_size)?$field->field_size:255),'value'=>(isset(Yii::app()->session['refferal']) && Yii::app()->session['refferal']!=='')?Yii::app()->session['refferal']:'','class'=>'form-control typeahead','data-remote'=>$this->createUrl('cari?act=upline&q=%QUERY')));
                     }else{
 			echo $form->textField($profile,$field->varname,array('size'=>60,'maxlength'=>(($field->field_size)?$field->field_size:255),'class'=>'form-control'));
                 }}
@@ -101,37 +89,24 @@ echo $form->dropDownList($profile,$field->varname,array());
 			}
 		}
 ?>
-	<?php if (UserModule::doCaptcha('registration')): ?>
-	<div class="row">
-            <div class="form-group">
-		<?php echo $form->labelEx($model,'verifyCode'); ?>
-		
-		<?php $this->widget('CCaptcha'); ?>
-		<?php echo $form->textField($model,'verifyCode'); ?>
-		<?php echo $form->error($model,'verifyCode'); ?>
-		
-		<p class="hint"><?php echo UserModule::t("Please enter the letters as they are shown in the image above."); ?>
-		<br/><?php echo UserModule::t("Letters are not case-sensitive."); ?></p>
-	</div>	</div>
-
-	<?php endif; ?>
-	
-	<div class="row submit" style="margin:0 auto;">
-		<?php echo CHtml::submitButton(UserModule::t("Register"),array('class'=>'btn btn-primary')); ?>
+	<div class="row buttons">
+		<?php echo CHtml::submitButton($model->isNewRecord ? UserModule::t('Create') : UserModule::t('Save')); ?>
 	</div>
 
 <?php $this->endWidget(); ?>
+
 </div><!-- form -->
 <script type="text/javascript">
-var memberid='<?php echo Yii::app()->session['refferal'];?>';
+var memberid='';
 $.ajax({
-            type: "POST",
+            type: "post",
             data:{id:memberid},
             url: '<?php echo $this->createUrl('jsonmember')?>',
             success: function(data)
             {
-            	$.each(JSON.parse(data), function(index, obj){
-            		console.log(index);
+            	console.log(JSON.parse(data));
+    	$.each(JSON.parse(data), function(index, obj){
+            		//console.log(index);
 			$('#Profile_kode_upline').append($('<option>', {value: obj.id,text: obj.text}));
 			
 		});
@@ -139,7 +114,6 @@ $.ajax({
             }
         });
 	</script>
-<?php endif; ?>
 
 <!-- Imported styles on this page -->
     <link rel="stylesheet" href="<?php echo Yii::app()->theme->baseUrl;?>/assets/js/select2/select2-bootstrap.css">

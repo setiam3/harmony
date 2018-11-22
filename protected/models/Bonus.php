@@ -84,6 +84,20 @@ class Bonus extends CActiveRecord
 			'idbonus' => 'Idbonus',
 		);
 	}
+	public function totalbonus(){//gettotalbonus per member login;
+		$member=Member::model()->findByAttributes(array('id'=>Yii::app()->user->id));
+		if(!empty($member)){
+			$bonus=0; $poin=0;
+		$data=$this->model()->findAllByAttributes(array('kode_member'=>Controller::id_member()),array('condition'=>'bonus_diambil= "N"'));
+		foreach ($data as $value) {
+			$bonus+=$value->bonus;
+			$poin+=$value->poin;
+		}
+		$totalbonus['bonus']=$bonus;
+		$totalbonus['poin']=$poin;
+		return $totalbonus;
+	}
+	}
 
 	/**
 	 * Retrieves a list of models based on the current search/filter conditions.
@@ -117,6 +131,11 @@ class Bonus extends CActiveRecord
 		$criteria->compare('keterangan',$this->keterangan,true);
 		$criteria->compare('dari_member',$this->dari_member,true);
 		$criteria->compare('idbonus',$this->idbonus);
+		if(!empty(Member::model()->findByAttributes(array('id'=>Yii::app()->user->id)))){
+			$criteria->addCondition('kode_member="'.Controller::id_member().'"');
+			//$criteria->addCondition('bonus > 0');
+			$criteria->addCondition('bonus_diambil = "N"');
+		}
 
 		return new CActiveDataProvider($this, array(
 			'criteria'=>$criteria,

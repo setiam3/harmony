@@ -17,7 +17,7 @@
  * @property integer $user_id
  * @property string $lastname
  * @property string $firstname
- * @property string $nik
+ * @property string $ektp
  * @property string $nama
  * @property string $alamat
  * @property string $hp
@@ -59,14 +59,13 @@ class Member extends CActiveRecord
 		return array(
 			array('username, password, email, alamat', 'required'),
 			array('id, superuser, status, user_id', 'numerical', 'integerOnly'=>true),
-			array('username, hp, bank, rekening', 'length', 'max'=>20),
+			array('username, ektp, hp, bank, rekening', 'length', 'max'=>20),
 			array('password, email, activkey', 'length', 'max'=>128),
 			array('lastname, firstname, nama, kode_upline, sponsor, kode_member, level, foto', 'length', 'max'=>50),
-			array('nik', 'length', 'max'=>25),
 			array('create_at, lastvisit_at, lastvisit, tgllahir', 'safe'),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
-			array('id, username, password, email, activkey, create_at, lastvisit_at, lastvisit, superuser, status, user_id, lastname, firstname, nik, nama, alamat, hp, bank, rekening, tgllahir, kode_upline, sponsor, kode_member, level, foto', 'safe', 'on'=>'search'),
+			array('id, username, password, email, activkey, create_at, lastvisit_at, lastvisit, superuser, status, user_id, lastname, firstname, ektp, nama, alamat, hp, bank, rekening, tgllahir, kode_upline, sponsor, kode_member, level, foto', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -100,7 +99,7 @@ class Member extends CActiveRecord
 			'user_id' => 'User',
 			'lastname' => 'Lastname',
 			'firstname' => 'Firstname',
-			'nik' => 'Nik',
+			'ektp' => 'Ektp',
 			'nama' => 'Nama',
 			'alamat' => 'Alamat',
 			'hp' => 'Hp',
@@ -139,7 +138,7 @@ class Member extends CActiveRecord
 		$criteria->compare('user_id',$_GET['sSearch'],true,'OR');
 		$criteria->compare('lastname',$_GET['sSearch'],true,'OR');
 		$criteria->compare('firstname',$_GET['sSearch'],true,'OR');
-		$criteria->compare('nik',$_GET['sSearch'],true,'OR');
+		$criteria->compare('ektp',$_GET['sSearch'],true,'OR');
 		$criteria->compare('nama',$_GET['sSearch'],true,'OR');
 		$criteria->compare('alamat',$_GET['sSearch'],true,'OR');
 		$criteria->compare('hp',$_GET['sSearch'],true,'OR');
@@ -165,7 +164,7 @@ class Member extends CActiveRecord
 		$criteria->compare('user_id',$this->user_id);
 		$criteria->compare('lastname',$this->lastname,true);
 		$criteria->compare('firstname',$this->firstname,true);
-		$criteria->compare('nik',$this->nik,true);
+		$criteria->compare('ektp',$this->ektp,true);
 		$criteria->compare('nama',$this->nama,true);
 		$criteria->compare('alamat',$this->alamat,true);
 		$criteria->compare('hp',$this->hp,true);
