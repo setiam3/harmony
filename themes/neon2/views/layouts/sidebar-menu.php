@@ -83,12 +83,6 @@
 							</a>
 						</li>
 						<li>
-                                <a href="<?php echo Yii::app()->createUrl('member/admin')?>">
-                                <i class="entypo-pencil"></i>
-								<span class="title">Edit Member</span>
-							</a>
-						</li>
-						<li>
                                 <a href="<?php echo Yii::app()->createUrl('member/create')?>">
                                 <i class="entypo-pencil"></i>
 								<span class="title">Add Member</span>

@@ -137,6 +137,55 @@ class Controller extends RController
         }
         return $randomString;
     }
+    public function deepValues(array $array, array &$values) {
+        foreach($array as $level) {
+            if (is_array($level)) {
+                $this->deepValues($level, $values);
+            } else {
+                $values[$level] = $level;
+            }
+        }
+        //return $value;
+    }
+    public function getUpline($cnd){
+        $row = array();
+        foreach(Member::model()->cache(1000)->findAllByAttributes(array('kode_member'=>$cnd)) as $haha){
+            if($haha->kode_upline!=='#' or $haha->level!=='distributor'){
+                $row[] = $cnd;
+                $row['upline'] = $haha->kode_upline;
+                if(count($this->getUpline2($haha->kode_upline))>0){
+                    $row[] = $this->getUpline2($haha->kode_upline);
+                }
+            }
+        }
+        return $row;
+    }
+    public function getUpline2($cnd){
+        $row = array();
+        foreach(Member::model()->cache(1000)->findAllByAttributes(array('kode_member'=>$cnd)) as $haha){
+             if($haha->kode_upline!=='#'){
+                $row['upline'] = $haha->kode_upline;
+                if(count($this->getUpline2($haha->kode_upline))>0 && $haha->kode_upline!=='#'){
+                   $row[] = $this->getUpline2($haha->kode_upline);
+                }
+            }
+        }
+        return $row;
+    }
+    public function comboSponsor($kode_member){
+        $values=array();
+        foreach(Controller::getUpline($kode_member) as $level) {
+            if (is_array($level)) {
+                Controller::deepValues($level, $values);
+            } else {
+                $values[$level] = $level;
+            }
+        }
+        if(in_array('#', $values)){
+            array_pop($values);
+        }
+        return $values;
+    }
     public function jsonmember(){
         $js=array();
         if(empty($_POST['id'])){
@@ -323,6 +372,7 @@ class Controller extends RController
         }
         
     }
+
     public static function bonussponsor($kodesponsor,$kodemember){
         if($kodesponsor!='#' || $kodemember!='#'){
         $q1=SettingBonus::model()->findAllByAttributes(array('jenis_bonus'=>'sponsor'));

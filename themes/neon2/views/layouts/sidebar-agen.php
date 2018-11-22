@@ -62,6 +62,12 @@
 								<span class="title">Edit Profile</span>
 							</a>
 						</li>
+						<li>
+                                <a href="<?php echo Yii::app()->createUrl('member/create')?>">
+                                <i class="entypo-pencil"></i>
+								<span class="title">Add Member</span>
+							</a>
+						</li>
 					</ul>
 				</li>
 				<li class="has-sub">

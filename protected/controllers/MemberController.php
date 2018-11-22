@@ -25,6 +25,14 @@ class MemberController extends Controller
     	}
     	echo CJSON::encode($js);
     }
+    public function actionComboSponsor(){
+		$js=array();
+		if(!empty($_POST['id'])){
+		foreach ($this->combosponsor($_POST['id']) as $k=>$value) {
+			$js[]=array('id'=>$k,'text'=>$value);
+		}}
+		echo CJSON::encode($js);
+	}
 	public function actionCreate()
 	{
 		$model=new User;
@@ -33,16 +41,46 @@ class MemberController extends Controller
 		if(isset($_POST['User']))
 		{
 			$model->attributes=$_POST['User'];
-			$model->activkey=Yii::app()->controller->module->encrypting(microtime().$model->password);
+			$model->activkey=UserModule::encrypting(microtime().$model->password);
 			$profile->attributes=$_POST['Profile'];
 			$profile->user_id=0;
+			$images=CUploadedFile::getInstancesByName('Profile[foto]');
 			if($model->validate()&&$profile->validate()) {
-				$model->password=Yii::app()->controller->module->encrypting($model->password);
+				$model->password=UserModule::encrypting($model->password);
 				if($model->save()) {
 					$profile->user_id=$model->id;
+					$profile->kode_member= Controller::autoformat();//generate kodemember
+
+					foreach ($images as $image=>$pic) {
+                $ext=substr($pic, strrpos($pic, '.')+1);
+                if(in_array($ext, $this->arrayImages)){
+                    $pic->saveAs($this->imagesPath().'Member'.$profile->kode_member.'.'.$ext);
+                }else{
+                    $messageType = 'warning';
+                    $message = "<strong>Only images file type allowed";
+                    Yii::app()->user->setFlash($messageType, $message);
+                    $this->redirect(array('create'));
+                }
+                $foto='Member'.$profile->kode_member.'.'.$ext;
+            //image resize
+$image= Yii::app()->image->load($this->imagesPath().'Member'.$profile->kode_member.'.'.$ext);
+                    $image->resize(640,640);
+                    $image->save();
+                    
+                    }
+                	$profile->foto=$foto;
 					$profile->save();
+
+					//insert into authasignment;
+	$q="insert into AuthAssignment (itemname, userid) values ('user','$profile->user_id')";
+	Yii::app()->db->createCommand($q)->execute();
+	//end insert
+	Controller::hitungbonusgetmember($profile->kode_upline,$profile->kode_member);
+	Controller::upgradelevel($profile->kode_upline);
+	Controller::bonussponsor($profile->sponsor,$profile->kode_member);//end update
+
 				}
-				$this->redirect(array('view','id'=>$model->id));
+				$this->redirect(array('index'));
 			} else $profile->validate();
 		}
 

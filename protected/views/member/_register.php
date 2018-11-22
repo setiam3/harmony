@@ -64,7 +64,7 @@
 	<div class="row">
 	<div class="form-group">
 		<?php echo $form->labelEx($profile,$field->varname,array('class'=>'col-md-2')); ?>
-            <div class="col-md-3">
+            <div class="col-md-5">
 		<?php 
 
 		if ($widgetEdit = $field->widgetEdit($profile)) {
@@ -77,14 +77,14 @@
                     echo $form->textField($profile,$field->varname,array('size'=>60,'maxlength'=>(($field->field_size)?$field->field_size:255),'class'=>'form-control datepicker','data-format'=>"yyyy-mm-dd",'value'=> date('Y-m-d')));
                 }else{
                     if($field->varname=='kode_upline' || $field->varname=='sponsor'){
-echo $form->dropDownList($profile,$field->varname,array());
-                    }else{
+echo $form->dropDownList($profile,$field->varname,array(),array('class'=>'select2'));
+                    }elseif($field->varname=='level'){}
+                    elseif($field->varname=='kode_member'){}else{
 			echo $form->textField($profile,$field->varname,array('size'=>60,'maxlength'=>(($field->field_size)?$field->field_size:255),'class'=>'form-control'));
                 }}
 		 ?>
 		<?php //echo $form->error($profile,$field->varname); ?>
 	</div></div></div>	
-
 			<?php
 			}
 		}
@@ -98,22 +98,42 @@ echo $form->dropDownList($profile,$field->varname,array());
 </div><!-- form -->
 <script type="text/javascript">
 var memberid='';
-$.ajax({
-            type: "post",
-            data:{id:memberid},
-            url: '<?php echo $this->createUrl('jsonmember')?>',
-            success: function(data)
-            {
-            	console.log(JSON.parse(data));
-    	$.each(JSON.parse(data), function(index, obj){
-            		//console.log(index);
-			$('#Profile_kode_upline').append($('<option>', {value: obj.id,text: obj.text}));
-			
+jQuery.ajax({
+    type: "post",
+    data:{id:memberid},
+    url: '<?php echo $this->createUrl('jsonmember')?>',
+    success: function(data)
+    {
+		jQuery.each(JSON.parse(data), function(index, obj){
+    		jQuery('#Profile_kode_upline').append(jQuery('<option>', {value: obj.id,text: obj.text}));
 		});
 
-            }
-        });
-	</script>
+    }
+});
+function getComboSponsor(){
+	
+	jQuery('#Profile_sponsor option').each(function() {
+        jQuery('#Profile_sponsor option').remove();
+});
+	jQuery.ajax({
+		type:'post',
+		data:{id:jQuery('#Profile_kode_upline').val()},
+		url:'<?php echo $this->createUrl('combosponsor')?>',
+		success:function(data){
+			//console.log(JSON.parse(data));
+			jQuery.each(JSON.parse(data), function(index, obj){
+    		jQuery('#Profile_sponsor').append(jQuery('<option>', {value: obj.id,text: obj.text}));
+		});
+		}
+	});
+}
+jQuery('#Profile_kode_upline').change(function(){
+	getComboSponsor();
+});
+jQuery('#Profile_kode_upline').mouseleave(function(){
+	getComboSponsor();
+});
+</script>
 
 <!-- Imported styles on this page -->
     <link rel="stylesheet" href="<?php echo Yii::app()->theme->baseUrl;?>/assets/js/select2/select2-bootstrap.css">
