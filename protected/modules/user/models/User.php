@@ -69,6 +69,7 @@ class User extends CActiveRecord
 			array('username', 'unique', 'message' => UserModule::t("This user's name already exists.")),
 			array('username', 'match', 'pattern' => '/^[A-Za-z0-9_]+$/u','message' => UserModule::t("Incorrect symbols (A-z0-9).")),
 			array('email', 'unique', 'message' => UserModule::t("This user's email address already exists.")),
+			array('id, username, password, email, activkey, create, lastvisit_at, superuser, status', 'safe', 'on'=>'search'),
 		):array()));
 	}
 
@@ -77,16 +78,10 @@ class User extends CActiveRecord
 	 */
 	public function relations()
 	{
-        // $relations = Yii::app()->getModule('user')->relations;
-        // if (!isset($relations['profile']))
-        //     $relations['profile'] = array(self::HAS_ONE, 'Profile', 'user_id');
-        // return $relations;
-
-        $relations = array(
-			'profile'=>array(self::HAS_ONE, 'Profile', 'user_id'),
-		);
-		if (isset(Yii::app()->getModule('user')->relations)) $relations = array_merge($relations,Yii::app()->getModule('user')->relations);
-		return $relations;
+        $relations = Yii::app()->getModule('user')->relations;
+        if (!isset($relations['profile']))
+            $relations['profile'] = array(self::HAS_ONE, 'Profile', 'user_id');
+        return $relations;
 	}
 
 	/**

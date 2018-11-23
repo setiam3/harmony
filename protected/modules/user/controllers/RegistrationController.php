@@ -27,7 +27,7 @@ class RegistrationController extends Controller
     	$js=array();
     	if(empty($_POST['id'])){
     		if(empty(Member::model()->findAll())){
-	    		$js=array('id'=>'#','text'=>'#');
+	    		$js[]=array('id'=>'#','text'=>'#');
 	    	}else{
 	    		foreach(Member::model()->findAll('level!="distributor"') as $k=>$row){
 		    		$js[]=array('id'=>$row->kode_member,'text'=>$row->kode_member.'-'.$row->nama.'-'.$row->alamat);

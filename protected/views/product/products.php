@@ -34,7 +34,7 @@ foreach($models as $data):
 	<p class="readmore" style="float: right; margin-right:11px; margin-bottom: 5px; margin-top: 0px;">
 		<?php
 		/*untuk membuat link update jika user login is admin*/
-		if (isset(Yii::app()->user->isAdmin)) {
+		if (isset(UserModule::isAdmin())) {
 			echo CHtml::link(CHtml::encode("Update"), array('update', 'id' => $data -> id));
 		}
 		?>
