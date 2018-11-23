@@ -77,10 +77,16 @@ class User extends CActiveRecord
 	 */
 	public function relations()
 	{
-        $relations = Yii::app()->getModule('user')->relations;
-        if (!isset($relations['profile']))
-            $relations['profile'] = array(self::HAS_ONE, 'Profile', 'user_id');
-        return $relations;
+        // $relations = Yii::app()->getModule('user')->relations;
+        // if (!isset($relations['profile']))
+        //     $relations['profile'] = array(self::HAS_ONE, 'Profile', 'user_id');
+        // return $relations;
+
+        $relations = array(
+			'profile'=>array(self::HAS_ONE, 'Profile', 'user_id'),
+		);
+		if (isset(Yii::app()->getModule('user')->relations)) $relations = array_merge($relations,Yii::app()->getModule('user')->relations);
+		return $relations;
 	}
 
 	/**
@@ -97,7 +103,7 @@ class User extends CActiveRecord
 			'verifyCode'=>UserModule::t("Verification Code"),
 			'activkey' => UserModule::t("activation key"),
 			'createtime' => UserModule::t("Registration date"),
-			//'create_at' => UserModule::t("Registration date"),
+			'create_at' => UserModule::t("Registration date"),
 			
 			'lastvisit' => UserModule::t("Last visit"),
 			'superuser' => UserModule::t("Superuser"),
@@ -121,7 +127,7 @@ class User extends CActiveRecord
                 'condition'=>'superuser=1',
             ),
             'notsafe'=>array(
-            	'select' => 'id, username, password, email, activkey, create_at, lastvisit_at, superuser, status',
+            	'select' => ' id, username, password, email, activkey, create_at, lastvisit_at, superuser, status',
             ),
         );
     }

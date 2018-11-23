@@ -109,10 +109,10 @@ return array(
             'authManager'=>array(
                'class'=>'RDbAuthManager',
             'connectionID'=>'db',
-            'itemTable'=>'authitem',
-	        'itemChildTable'=>'authitemchild',
-	        'assignmentTable'=>'authassignment',
-	        'rightsTable'=>'rights',
+            'itemTable'=>'AuthItem',
+	        'itemChildTable'=>'AuthItemChild',
+	        'assignmentTable'=>'AuthAssignment',
+	        'rightsTable'=>'Rights',
         ),
 		// uncomment the following to enable URLs in path-format
 		
