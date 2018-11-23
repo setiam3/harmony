@@ -68,6 +68,7 @@ class ProductController extends Controller
 	}
         public function actionIndex()
 	{
+
 		/*gunakan layout store*/
 		//$this -> layout = 'store';
 		/*order by id desc*/
@@ -90,7 +91,8 @@ class ProductController extends Controller
 		 *dengan membawa data pada $models dan
 		 *data pada $pages
 		 **/
-		$this -> render('products', array('models' => $models, 'pages' => $pages, ));
+		//print_r($pages);die;
+		$this->render('products', array('models' => $models, 'pages' => $pages,));
 	}
 
 	/**

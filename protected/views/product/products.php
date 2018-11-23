@@ -2,7 +2,7 @@
 /*digunakan untuk membuat breadcrumbs*/
 $this -> breadcrumbs = array('Products', );
 ?>
-<?php
+<?php 
 $i=1;
 /*foreach data product yang di bawa $models*/
 foreach($models as $data):
@@ -34,7 +34,7 @@ foreach($models as $data):
 	<p class="readmore" style="float: right; margin-right:11px; margin-bottom: 5px; margin-top: 0px;">
 		<?php
 		/*untuk membuat link update jika user login is admin*/
-		if (isset(UserModule::isAdmin())) {
+		if (UserModule::isAdmin()) {
 			echo CHtml::link(CHtml::encode("Update"), array('update', 'id' => $data -> id));
 		}
 		?>
